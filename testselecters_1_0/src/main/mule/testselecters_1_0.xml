@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="04adc25a-25d2-420f-ac52-7a93c4aa5835" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="testselecters_1_0Flow" doc:id="17ef45d8-ac0c-4167-83bd-21b22025a6f7" >
+		<http:listener doc:name="Listener" doc:id="add64379-36ef-4e59-badc-2f60234facc9" config-ref="HTTP_Listener_config" path="/selecters"/>
+		<ee:transform doc:name="Transform Message" doc:id="a4b72127-b9b2-4db7-8cba-24198d536895" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/dw
+
+var productsxml= readUrl("classpath://examples/products.xml","application/xml")
+
+var products=productsxml.products.*product
+
+var myns = productsxml.products.#
+
+var obj={firstName:"utkarsh",lastname:"sharma"}
+
+
+---
+
+//products.@
+
+//sizeOf(productsxml..)
+
+//user:obj.&firstName
+
+
+//productsxml.products
+
+//productsxml.&products
+
+productsxml.products.*product[?($.brandName=='Apple')]
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
