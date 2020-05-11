@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="fc372596-e4a2-4d15-8396-3f9027cb6ad1" >
+		<http:listener-connection host="0.0.0.0" port="8082" protocol="HTTPS">
+			<tls:context >
+				<tls:key-store type="jks" path="keystore.jks" alias="mule" keyPassword="mule1234" password="mule1234" />
+			</tls:context>
+		</http:listener-connection>
+	</http:listener-config>
+	<flow name="Demo-ListenerFlow" doc:id="808bfd6d-dac2-46d2-a8d6-6f1a5c1806d5" >
+		<http:listener doc:name="Listener" doc:id="6a270319-4ffb-46d2-b0aa-d3ec083a6c49" config-ref="HTTP_Listener_config1" path="/HelloWorld" allowedMethods="GET"/>
+		<set-payload value='#["Hello" ++ "world"]' doc:name="Set Payload" doc:id="77079546-8e67-4315-adec-ee4175182a24" />
+	</flow>
+</mule>

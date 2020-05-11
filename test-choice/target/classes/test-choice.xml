@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="736f501e-5ca0-4d38-b57b-7ac537897124" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="test-choiceFlow" doc:id="0f3d4ad4-9a66-40f7-9501-37b0a04e4cfc" >
+		<http:listener doc:name="Listener" doc:id="c96143eb-c0fa-4d29-8688-bb5ffd347868" config-ref="HTTP_Listener_config" path="/choice/{country}"/>
+		<choice doc:name="Choice" doc:id="3f3353dd-fa21-48b9-ba60-432291f73de2" >
+			<when expression="#[attributes.uriParams.country == 'NSW']">
+				<logger level="INFO" doc:name="Logger" doc:id="7b19d601-3918-4ab7-ac73-d39272120979" message='#["WE ARE IN NSW"]'/>
+			</when>
+			<when expression="#[attributes.uriParams.country == 'VIC']">
+				<logger level="INFO" doc:name="Logger" doc:id="ccc8c9ab-40bc-4364-900d-44c685145a9a" message='#["You in VIC"]'/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="a078f204-4f6b-447c-9f93-376fef9ff08a" message='#["you are nowhere"]'/>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>
