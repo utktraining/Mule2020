@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="json" format="json">
+      <types:shape format="weave" example="examples/playersinput.json"><![CDATA[%dw 2.0
+
+type json = Array<{|  id: Number {"typeId": "int"},   name: String|}> {"example": "[{\\\"id\\\":1,\\\"name\\\":\\\"sachin\\\"},{\\\"id\\\":2,\\\"name\\\":\\\"Dhoni\\\"},{\\\"id\\\":3,\\\"name\\\":\\\"virat\\\"},{\\\"id\\\":4,\\\"name\\\":\\\"kumble\\\"},{\\\"id\\\":5,\\\"name\\\":\\\"jadeja\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#439ad432-820d-435d-8771-ecf02a47eb5b">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="json"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
