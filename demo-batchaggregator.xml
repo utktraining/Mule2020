@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="c982705a-fc95-4a1d-ae36-b4128cb582c6" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="1a7a0c27-c88c-4a13-8092-5065fca82761" >
+		<file:connection workingDir="F:\My-learning\Mule\Mule4\2020\myresources\demo" />
+	</file:config>
+	<flow name="demo-batchaggregatorFlow" doc:id="74ce8623-605c-4bb0-9f26-22154051ca66" >
+		<http:listener doc:name="Listener" doc:id="a4b94bf0-e5ca-43be-b915-ba006f8b8bdd" config-ref="HTTP_Listener_config" path="/demobatch">
+			<http:response >
+				<http:body ><![CDATA[batch job completed]]></http:body>
+			</http:response>
+		</http:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="2645209d-109d-497c-85a8-3a662aa0eaf3" message="log---batch job begins here #[payload]"/>
+		<batch:job jobName="demo-batchaggregatorBatch_Job" doc:id="2d7488ae-618e-4d51-a192-8f8d440f1a97">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="38461d37-ed2e-49d5-892c-cf51ce92087e" >
+					<logger level="INFO" doc:name="Logger" doc:id="33f798e8-f8cf-4447-9e57-3dd7e5c674e2" message="log--- Batch step completed"/>
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="bca7f9ca-880e-4b69-bc7f-4772aa0f366b" size="3">
+						<logger level="INFO" doc:name="Logger" doc:id="f37ab3e3-3bd8-440a-a8a7-da192ba9bd8a" message="Log--- Batch Aggregator completed"/>
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger" doc:id="3310ea20-23ec-4eba-90d8-e0824026f3e5" message="log---entire batch job completed"/>
+			</batch:on-complete>
+		</batch:job>
+	</flow>
+</mule>

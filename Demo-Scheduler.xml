@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<file:config name="File_Config1" doc:name="File Config" doc:id="f3daf971-a7d2-40f5-81f1-369a15abc1db" >
+		<file:connection workingDir="F:\My-learning\Mule\Mule4\2020\myresources\demo\input" />
+	</file:config>
+	<file:config name="File_Config_write" doc:name="File Config" doc:id="0663d101-2e40-4fa9-aa97-b259b7903de3" >
+		<file:connection workingDir="F:\My-learning\Mule\Mule4\2020\myresources\demo\output" />
+	</file:config>
+	<flow name="Demo-SchedulerFlow" doc:id="08b4d3c3-440e-40d7-800b-4676cc7c9bec" >
+		<scheduler doc:name="Scheduler" doc:id="f0e649d2-1b58-4706-bd49-b71067a97153" >
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</scheduler>
+		<file:read doc:name="Read" doc:id="c76790c4-792a-4c6f-928a-f24bf81700e1" config-ref="File_Config1" path="input.csv"/>
+		<ee:transform doc:name="Transform Message" doc:id="bf4e5809-2dcf-4c33-8c80-1e32e05d1d9a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map (items,index) -> {
+		ID:items.PlayerID,
+		NAME:items.PlayerName,
+		JERSEYNumber:items.JerseyNumber,
+		STATE:items.State
+	}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="Demo-SchedulerBatch_Job" doc:id="ec0c5b52-9093-4f56-b506-a8d9cd220bdf" blockSize="50">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="dd683704-9e00-4d32-b580-d094fbd4913a" >
+					<ee:transform doc:name="Transform Message" doc:id="9153aa9c-e197-473d-a437-d24d14fbb580" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	pid:payload.ID,
+	pname:payload.NAME,
+	pjersey:payload.JERSEYNumber,
+	pstate:payload.STATE
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<logger level="INFO" doc:name="Logger" doc:id="8bf56c55-0a68-440e-8d08-b4c554921305" message="Batch log ----processed records"/>
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="0d16c806-7dab-41dc-bab6-9cabe0192a56" size="50">
+						<ee:transform doc:name="Transform Message" doc:id="538d1d52-905c-4ba1-93d0-8c6360460298" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+	payload map (items,index) -> {
+		
+		pid:items.pid,
+		pname:items.pname,
+		pjesey:items.pjersey,
+		pstate:items.pstate
+		
+	}]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<file:write doc:name="Write" doc:id="e873a52c-7ec5-4743-9b3d-f0e2030a4092" config-ref="File_Config_write" path="#['PlayerFile' ++ (random()*10000) ++ '.txt']"/>
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<file:delete doc:name="Delete" doc:id="788b7cc6-935e-4195-9f37-da31f45df124" config-ref="File_Config1" path="input.csv"/>
+			</batch:on-complete>
+		</batch:job>
+	</flow>
+</mule>
